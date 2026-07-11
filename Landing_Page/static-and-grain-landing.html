@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Static & Grain — Record Shop & Listening Bar</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,500;9..144,600;9..144,700&family=Work+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+
+  :root{
+    --ink-black: #1B1611;
+    --panel: #241C16;
+    --cream: #F1E9D8;
+    --cream-dim: #C9BFA9;
+    --rust: #A63D2F;
+    --rust-bright: #C24A38;
+    --gold: #C9A227;
+    --line: rgba(241,233,216,0.14);
+  }
+
+  *{ margin:0; padding:0; box-sizing:border-box; }
+
+  html{ scroll-behavior:smooth; }
+
+  body{
+    background:var(--ink-black);
+    color:var(--cream);
+    font-family:'Work Sans', sans-serif;
+    line-height:1.6;
+    overflow-x:hidden;
+  }
+
+  h1, h2, h3{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    letter-spacing:-0.01em;
+  }
+
+  .mono{
+    font-family:'IBM Plex Mono', monospace;
+    letter-spacing:0.04em;
+    text-transform:uppercase;
+    font-size:0.72rem;
+  }
+
+  a{ color:inherit; text-decoration:none; }
+
+  .wrap{
+    max-width:1140px;
+    margin:0 auto;
+    padding:0 32px;
+  }
+
+  /* ---------- NAV ---------- */
+
+  nav{
+    position:fixed;
+    top:0; left:0; right:0;
+    z-index:50;
+    background:rgba(27,22,17,0.86);
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line);
+  }
+
+  nav .wrap{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    height:76px;
+  }
+
+  .logo{
+    font-family:'Fraunces', serif;
+    font-weight:700;
+    font-size:1.25rem;
+    letter-spacing:0.01em;
+  }
+  .logo span{ color:var(--rust-bright); }
+
+  .nav-links{
+    display:flex;
+    gap:36px;
+    align-items:center;
+  }
+
+  .nav-links a{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.78rem;
+    text-transform:uppercase;
+    letter-spacing:0.06em;
+    color:var(--cream-dim);
+    transition:color 0.2s;
+  }
+  .nav-links a:hover, .nav-links a:focus-visible{ color:var(--cream); }
+
+  .btn{
+    display:inline-block;
+    padding:12px 24px;
+    border-radius:2px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.75rem;
+    letter-spacing:0.06em;
+    text-transform:uppercase;
+    transition:transform 0.2s, background 0.2s;
+  }
+  .btn-primary{
+    background:var(--rust);
+    color:var(--cream);
+  }
+  .btn-primary:hover{ background:var(--rust-bright); transform:translateY(-1px); }
+  .btn-primary:focus-visible, .btn-outline:focus-visible{ outline:2px solid var(--gold); outline-offset:2px; }
+
+  .btn-outline{
+    border:1px solid var(--line);
+    color:var(--cream-dim);
+  }
+  .btn-outline:hover{ border-color:var(--gold); color:var(--cream); }
+
+  /* ---------- HERO ---------- */
+
+  header.hero{
+    padding:170px 0 120px;
+    position:relative;
+  }
+
+  .hero-grid{
+    display:grid;
+    grid-template-columns:1.1fr 0.9fr;
+    gap:60px;
+    align-items:center;
+  }
+
+  .eyebrow{
+    color:var(--gold);
+    margin-bottom:18px;
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  .eyebrow::before{
+    content:'';
+    width:22px; height:1px;
+    background:var(--gold);
+    display:inline-block;
+  }
+
+  .hero h1{
+    font-size:clamp(2.6rem, 5vw, 4.1rem);
+    line-height:1.04;
+    color:var(--cream);
+  }
+  .hero h1 em{
+    font-style:italic;
+    color:var(--rust-bright);
+  }
+
+  .hero p.lede{
+    margin-top:24px;
+    max-width:440px;
+    color:var(--cream-dim);
+    font-size:1.05rem;
+  }
+
+  .hero-actions{
+    margin-top:38px;
+    display:flex;
+    gap:16px;
+  }
+
+  /* vinyl record graphic */
+  .record-wrap{
+    position:relative;
+    display:flex;
+    justify-content:center;
+  }
+
+  .record{
+    width:340px;
+    height:340px;
+    border-radius:50%;
+    background:
+      repeating-radial-gradient(circle at center,
+        #0e0b09 0px, #0e0b09 2px,
+        #1c1611 2px, #1c1611 5px);
+    box-shadow: 0 30px 60px rgba(0,0,0,0.5), inset 0 0 0 1px rgba(255,255,255,0.04);
+    position:relative;
+    animation: spin 14s linear infinite;
+  }
+  @media (prefers-reduced-motion: reduce){
+    .record{ animation:none; }
+  }
+  .record::before{
+    content:'';
+    position:absolute;
+    top:50%; left:50%;
+    width:118px; height:118px;
+    margin:-59px 0 0 -59px;
+    border-radius:50%;
+    background:var(--rust);
+    box-shadow: 0 0 0 2px rgba(0,0,0,0.4);
+  }
+  .record::after{
+    content:'';
+    position:absolute;
+    top:50%; left:50%;
+    width:14px; height:14px;
+    margin:-7px 0 0 -7px;
+    border-radius:50%;
+    background:var(--ink-black);
+  }
+  .record-label{
+    position:absolute;
+    top:50%; left:50%;
+    width:118px;
+    margin:-25px 0 0 -59px;
+    text-align:center;
+    z-index:2;
+    color:var(--cream);
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.6rem;
+    letter-spacing:0.05em;
+    text-transform:uppercase;
+    line-height:1.3;
+  }
+
+  .tonearm{
+    position:absolute;
+    top:-18px; right:calc(50% - 195px);
+    width:150px; height:150px;
+    z-index:3;
+  }
+  .tonearm .arm{
+    position:absolute;
+    top:6px; right:6px;
+    width:8px; height:150px;
+    background:linear-gradient(180deg, #8a8a8a, #4a4a4a);
+    border-radius:4px;
+    transform-origin:top right;
+    transform:rotate(38deg);
+  }
+  .tonearm .pivot{
+    position:absolute;
+    top:0; right:0;
+    width:26px; height:26px;
+    border-radius:50%;
+    background:#3a3a3a;
+    box-shadow:0 2px 8px rgba(0,0,0,0.5);
+  }
+
+  @keyframes spin{ to{ transform:rotate(360deg); } }
+
+  /* ---------- SECTION SHELL ---------- */
+
+  section{ padding:100px 0; position:relative; }
+  .divider{
+    height:1px;
+    background:var(--line);
+    width:100%;
+  }
+
+  .section-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-end;
+    margin-bottom:56px;
+    flex-wrap:wrap;
+    gap:20px;
+  }
+  .section-head .eyebrow{ margin-bottom:10px; }
+  .section-head h2{ font-size:2.1rem; color:var(--cream); }
+  .section-head p{ color:var(--cream-dim); max-width:340px; font-size:0.95rem; }
+
+  /* ---------- NOW SPINNING (records grid) ---------- */
+
+  .records-grid{
+    display:grid;
+    grid-template-columns:repeat(3, 1fr);
+    gap:28px;
+  }
+
+  .record-card{
+    background:var(--panel);
+    border:1px solid var(--line);
+    padding:22px;
+    transition:border-color 0.25s, transform 0.25s;
+  }
+  .record-card:hover{ border-color:var(--gold); transform:translateY(-4px); }
+
+  .cover{
+    width:100%;
+    aspect-ratio:1/1;
+    border-radius:2px;
+    margin-bottom:18px;
+    position:relative;
+    overflow:hidden;
+  }
+  .cover-1{ background:linear-gradient(135deg,#5a3a2e,#A63D2F 60%, #C9A227); }
+  .cover-2{ background:linear-gradient(135deg,#2e3a30,#4f6b52 55%, #C9A227); }
+  .cover-3{ background:linear-gradient(135deg,#2a2a3a,#4a3a5e 55%, #A63D2F); }
+  .cover::after{
+    content:'';
+    position:absolute;
+    right:-30%; top:50%;
+    width:60%; height:60%;
+    border:1px solid rgba(255,255,255,0.25);
+    border-radius:50%;
+    transform:translateY(-50%);
+  }
+
+  .record-card .genre{ color:var(--gold); margin-bottom:8px; }
+  .record-card h3{ font-size:1.15rem; color:var(--cream); margin-bottom:4px; }
+  .record-card .artist{ color:var(--cream-dim); font-size:0.9rem; margin-bottom:14px; }
+  .record-card .price{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.85rem;
+    padding-top:14px;
+    border-top:1px solid var(--line);
+  }
+
+  /* ---------- THE BOOTH ---------- */
+
+  .booth-grid{
+    display:grid;
+    grid-template-columns:0.9fr 1.1fr;
+    gap:70px;
+    align-items:center;
+  }
+
+  .booth-visual{
+    background:var(--panel);
+    border:1px solid var(--line);
+    aspect-ratio:4/5;
+    position:relative;
+    overflow:hidden;
+  }
+  .booth-visual .grooves{
+    position:absolute;
+    inset:0;
+    background:repeating-linear-gradient(
+      transparent, transparent 22px,
+      rgba(201,162,39,0.08) 22px, rgba(201,162,39,0.08) 23px
+    );
+  }
+  .booth-visual .headline-stamp{
+    position:absolute;
+    bottom:26px; left:26px; right:26px;
+    font-family:'Fraunces', serif;
+    font-size:1.5rem;
+    color:var(--cream);
+    line-height:1.15;
+  }
+
+  .feature-list{
+    display:flex;
+    flex-direction:column;
+    gap:26px;
+    margin-top:32px;
+  }
+  .feature-item{
+    display:flex;
+    gap:18px;
+  }
+  .feature-num{
+    font-family:'IBM Plex Mono', monospace;
+    color:var(--rust-bright);
+    font-size:0.85rem;
+    padding-top:3px;
+  }
+  .feature-item h4{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size:1.05rem;
+    color:var(--cream);
+    margin-bottom:6px;
+  }
+  .feature-item p{ color:var(--cream-dim); font-size:0.92rem; max-width:400px; }
+
+  /* ---------- TONIGHT'S SET (tracklist) ---------- */
+
+  .tracklist{
+    background:var(--panel);
+    border:1px solid var(--line);
+  }
+  .track{
+    display:grid;
+    grid-template-columns:50px 1fr 120px 70px;
+    align-items:center;
+    padding:20px 28px;
+    border-bottom:1px solid var(--line);
+    transition:background 0.2s;
+  }
+  .track:last-child{ border-bottom:none; }
+  .track:hover{ background:rgba(201,162,39,0.05); }
+  .track .num{ color:var(--gold); font-family:'IBM Plex Mono', monospace; font-size:0.85rem; }
+  .track .title{ color:var(--cream); font-weight:500; }
+  .track .title small{ display:block; color:var(--cream-dim); font-weight:400; font-size:0.82rem; margin-top:2px; }
+  .track .tag{ color:var(--cream-dim); font-family:'IBM Plex Mono', monospace; font-size:0.75rem; text-transform:uppercase; }
+  .track .time{ color:var(--cream-dim); font-family:'IBM Plex Mono', monospace; font-size:0.85rem; text-align:right; }
+
+  /* ---------- VISIT / FOOTER ---------- */
+
+  footer{
+    padding:90px 0 50px;
+    background:var(--panel);
+    border-top:1px solid var(--line);
+  }
+  .footer-grid{
+    display:grid;
+    grid-template-columns:1.2fr 0.8fr 0.8fr;
+    gap:50px;
+    margin-bottom:70px;
+  }
+  footer h3{ font-size:1.6rem; color:var(--cream); margin-bottom:16px; max-width:320px; }
+  footer p{ color:var(--cream-dim); font-size:0.92rem; max-width:300px; margin-bottom:22px; }
+
+  .footer-col .mono{ color:var(--gold); display:block; margin-bottom:14px; }
+  .footer-col div{ color:var(--cream-dim); font-size:0.92rem; margin-bottom:8px; }
+
+  .newsletter{
+    display:flex;
+    margin-top:8px;
+    max-width:340px;
+  }
+  .newsletter input{
+    flex:1;
+    background:transparent;
+    border:1px solid var(--line);
+    border-right:none;
+    padding:12px 14px;
+    color:var(--cream);
+    font-family:'Work Sans', sans-serif;
+    font-size:0.9rem;
+  }
+  .newsletter input:focus-visible{ outline:none; border-color:var(--gold); }
+  .newsletter input::placeholder{ color:var(--cream-dim); }
+  .newsletter button{
+    border:none;
+    cursor:pointer;
+    background:var(--rust);
+    color:var(--cream);
+    padding:0 20px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.75rem;
+    text-transform:uppercase;
+  }
+  .newsletter button:hover{ background:var(--rust-bright); }
+
+  .footer-bottom{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding-top:30px;
+    border-top:1px solid var(--line);
+    color:var(--cream-dim);
+    font-size:0.8rem;
+    flex-wrap:wrap;
+    gap:12px;
+  }
+  .footer-bottom .socials{ display:flex; gap:20px; }
+  .footer-bottom a:hover{ color:var(--cream); }
+
+  /* ---------- RESPONSIVE ---------- */
+
+  @media (max-width:860px){
+    .nav-links{ display:none; }
+    .hero-grid{ grid-template-columns:1fr; }
+    .record-wrap{ order:-1; margin-bottom:20px; }
+    .records-grid{ grid-template-columns:1fr 1fr; }
+    .booth-grid{ grid-template-columns:1fr; }
+    .footer-grid{ grid-template-columns:1fr; gap:36px; }
+    .track{ grid-template-columns:36px 1fr 60px; }
+    .track .tag{ display:none; }
+  }
+  @media (max-width:560px){
+    .records-grid{ grid-template-columns:1fr; }
+    .wrap{ padding:0 20px; }
+  }
+
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap">
+    <div class="logo">STATIC <span>&amp;</span> GRAIN</div>
+    <div class="nav-links">
+      <a href="#spinning">Now Spinning</a>
+      <a href="#booth">The Booth</a>
+      <a href="#tonight">Tonight's Set</a>
+      <a href="#visit">Visit</a>
+      <a href="#visit" class="btn btn-primary">Reserve a Booth</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <div class="eyebrow mono">Record shop &amp; listening bar</div>
+      <h1>Where the <em>needle</em><br>drops.</h1>
+      <p class="lede">A crate-dug selection of vinyl, four turntables you can actually use, and a bar built for slow listening. No streaming. No shuffle. Just the record, start to finish.</p>
+      <div class="hero-actions">
+        <a href="#spinning" class="btn btn-primary">Browse the Crates</a>
+        <a href="#booth" class="btn btn-outline">See the Booth</a>
+      </div>
+    </div>
+    <div class="record-wrap">
+      <div class="tonearm">
+        <div class="pivot"></div>
+        <div class="arm"></div>
+      </div>
+      <div class="record">
+        <div class="record-label">Static<br>&amp; Grain<br>33⅓</div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="divider wrap"></div>
+
+<section id="spinning">
+  <div class="wrap">
+    <div class="section-head">
+      <div>
+        <div class="eyebrow mono">This week's crate</div>
+        <h2>Now Spinning</h2>
+      </div>
+      <p>Three records the staff can't stop playing behind the counter. Restocked every Friday.</p>
+    </div>
+    <div class="records-grid">
+      <div class="record-card">
+        <div class="cover cover-1"></div>
+        <div class="genre mono">Soul / Funk — 1974</div>
+        <h3>Copper &amp; Rust</h3>
+        <div class="artist">The Lowlight Four</div>
+        <div class="price"><span>180g reissue</span><span>$34</span></div>
+      </div>
+      <div class="record-card">
+        <div class="cover cover-2"></div>
+        <div class="genre mono">Ambient / Jazz — 2019</div>
+        <h3>Green Room</h3>
+        <div class="artist">Mira Oskarsson</div>
+        <div class="price"><span>First pressing</span><span>$28</span></div>
+      </div>
+      <div class="record-card">
+        <div class="cover cover-3"></div>
+        <div class="genre mono">Post-Punk — 1981</div>
+        <h3>Concrete Weather</h3>
+        <div class="artist">Static Choir</div>
+        <div class="price"><span>Import</span><span>$46</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider wrap"></div>
+
+<section id="booth">
+  <div class="wrap booth-grid">
+    <div class="booth-visual">
+      <div class="grooves"></div>
+      <div class="headline-stamp">Four booths. One rule: whole records only.</div>
+    </div>
+    <div>
+      <div class="eyebrow mono">The listening bar</div>
+      <h2>Built for sitting still.</h2>
+      <div class="feature-list">
+        <div class="feature-item">
+          <div class="feature-num">A</div>
+          <div>
+            <h4>Real turntables, not a jukebox</h4>
+            <p>Each booth runs a belt-drive deck and a pair of open-back headphones. Pull anything off the shelf and drop it yourself.</p>
+          </div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-num">B</div>
+          <div>
+            <h4>Curated flights</h4>
+            <p>Can't decide? Ask the counter for a themed flight of three records, paired with a drink that matches the mood.</p>
+          </div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-num">C</div>
+          <div>
+            <h4>No skipping tracks</h4>
+            <p>Booths are booked by the side, not the song — forty minutes to sit with an album the way it was sequenced.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider wrap"></div>
+
+<section id="tonight">
+  <div class="wrap">
+    <div class="section-head">
+      <div>
+        <div class="eyebrow mono">Booth 3 — tonight</div>
+        <h2>Tonight's Set</h2>
+      </div>
+      <p>Side A of what's on the counter deck right now. Come sit down before it ends.</p>
+    </div>
+    <div class="tracklist">
+      <div class="track">
+        <div class="num">01</div>
+        <div class="title">Low Tide<small>The Lowlight Four</small></div>
+        <div class="tag">Funk</div>
+        <div class="time">4:12</div>
+      </div>
+      <div class="track">
+        <div class="num">02</div>
+        <div class="title">Green Room<small>Mira Oskarsson</small></div>
+        <div class="tag">Ambient</div>
+        <div class="time">6:47</div>
+      </div>
+      <div class="track">
+        <div class="num">03</div>
+        <div class="title">Concrete Weather<small>Static Choir</small></div>
+        <div class="tag">Post-Punk</div>
+        <div class="time">3:58</div>
+      </div>
+      <div class="track">
+        <div class="num">04</div>
+        <div class="title">Rust Belt Waltz<small>The Lowlight Four</small></div>
+        <div class="tag">Funk</div>
+        <div class="time">5:03</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer id="visit">
+  <div class="wrap">
+    <div class="footer-grid">
+      <div>
+        <h3>Come sit with a whole record for once.</h3>
+        <p>Get first notice on Friday restocks and monthly listening nights.</p>
+        <form class="newsletter" onsubmit="return false;">
+          <input type="email" placeholder="your@email.com" aria-label="Email address">
+          <button type="submit">Join</button>
+        </form>
+      </div>
+      <div class="footer-col">
+        <span class="mono">Visit</span>
+        <div>412 Foundry Street</div>
+        <div>Unit 2, Riverside</div>
+        <div>Open Tue–Sun</div>
+      </div>
+      <div class="footer-col">
+        <span class="mono">Hours</span>
+        <div>Tue–Thu · 11am–9pm</div>
+        <div>Fri–Sat · 11am–1am</div>
+        <div>Sun · 12pm–6pm</div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div>© 2026 Static &amp; Grain Record Co.</div>
+      <div class="socials">
+        <a href="#">Instagram</a>
+        <a href="#">Newsletter</a>
+        <a href="#">Directions</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
