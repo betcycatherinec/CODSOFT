@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calculator</title>
+<style>
+
+  :root{
+    --bg: #14171c;
+    --panel: #1c2028;
+    --display-bg: #10131a;
+    --key-bg: #262b35;
+    --key-hover: #313744;
+    --op-bg: #ff9f43;
+    --op-hover: #ffb262;
+    --equals-bg: #4c6ef5;
+    --equals-hover: #6483ff;
+    --text: #eef0f4;
+    --text-dim: #7d8494;
+  }
+
+  *{ margin:0; padding:0; box-sizing:border-box; }
+
+  body{
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:var(--bg);
+    font-family:'Segoe UI', Roboto, Arial, sans-serif;
+    padding:20px;
+  }
+
+  .calculator{
+    width:340px;
+    background:var(--panel);
+    border-radius:20px;
+    padding:22px;
+    box-shadow:0 20px 50px rgba(0,0,0,0.45);
+  }
+
+  .display{
+    background:var(--display-bg);
+    border-radius:14px;
+    padding:22px 18px 16px;
+    margin-bottom:18px;
+    text-align:right;
+    overflow:hidden;
+  }
+
+  .display .previous{
+    color:var(--text-dim);
+    font-size:0.95rem;
+    min-height:18px;
+    word-wrap:break-word;
+  }
+
+  .display .current{
+    color:var(--text);
+    font-size:2.3rem;
+    font-weight:600;
+    margin-top:6px;
+    word-wrap:break-word;
+    line-height:1.2;
+  }
+
+  .keys{
+    display:grid;
+    grid-template-columns:repeat(4, 1fr);
+    gap:12px;
+  }
+
+  button{
+    border:none;
+    outline:none;
+    cursor:pointer;
+    border-radius:12px;
+    padding:18px 0;
+    font-size:1.15rem;
+    font-weight:500;
+    color:var(--text);
+    background:var(--key-bg);
+    transition:background 0.15s, transform 0.1s;
+  }
+
+  button:hover{ background:var(--key-hover); }
+  button:active{ transform:scale(0.95); }
+
+  button:focus-visible{
+    outline:2px solid var(--equals-bg);
+    outline-offset:2px;
+  }
+
+  .btn-operator{
+    background:transparent;
+    color:var(--op-bg);
+    border:1px solid var(--op-bg);
+  }
+  .btn-operator:hover{ background:rgba(255,159,67,0.12); color:var(--op-hover); }
+
+  .btn-clear, .btn-delete{
+    color:var(--text-dim);
+  }
+
+  .btn-equals{
+    background:var(--equals-bg);
+    grid-row:span 1;
+  }
+  .btn-equals:hover{ background:var(--equals-hover); }
+
+  .btn-zero{
+    grid-column:span 2;
+  }
+
+  .btn-span-tall{
+    grid-row:span 2;
+    height:100%;
+  }
+
+</style>
+</head>
+<body>
+
+<div class="calculator">
+
+  <div class="display">
+    <div class="previous" id="previousOperand"></div>
+    <div class="current" id="currentOperand">0</div>
+  </div>
+
+  <div class="keys">
+    <button class="btn-clear" data-action="clear">AC</button>
+    <button class="btn-delete" data-action="delete">DEL</button>
+    <button class="btn-operator" data-action="operator" data-value="%">%</button>
+    <button class="btn-operator" data-action="operator" data-value="÷">÷</button>
+
+    <button data-action="number" data-value="7">7</button>
+    <button data-action="number" data-value="8">8</button>
+    <button data-action="number" data-value="9">9</button>
+    <button class="btn-operator" data-action="operator" data-value="×">×</button>
+
+    <button data-action="number" data-value="4">4</button>
+    <button data-action="number" data-value="5">5</button>
+    <button data-action="number" data-value="6">6</button>
+    <button class="btn-operator" data-action="operator" data-value="-">−</button>
+
+    <button data-action="number" data-value="1">1</button>
+    <button data-action="number" data-value="2">2</button>
+    <button data-action="number" data-value="3">3</button>
+    <button class="btn-operator" data-action="operator" data-value="+">+</button>
+
+    <button class="btn-zero" data-action="number" data-value="0">0</button>
+    <button data-action="decimal">.</button>
+    <button class="btn-equals" data-action="equals">=</button>
+  </div>
+
+</div>
+
+<script>
+
+  /* ---------- Grab elements ---------- */
+  const previousOperandEl = document.getElementById('previousOperand');
+  const currentOperandEl  = document.getElementById('currentOperand');
+  const allButtons        = document.querySelectorAll('button');
+
+  /* ---------- Calculator state ---------- */
+  let currentOperand  = '0';   // what's currently being typed
+  let previousOperand = '';    // the stored first number
+  let operator        = null;  // the chosen operator (+, -, ×, ÷, %)
+  let resetNext        = false; // true right after "=" so next digit starts fresh
+
+  /* ---------- Update the screen ---------- */
+  function updateDisplay(){
+    currentOperandEl.textContent = currentOperand;
+    previousOperandEl.textContent = previousOperand
+      ? `${previousOperand} ${operator}`
+      : '';
+  }
+
+  /* ---------- Append a digit ---------- */
+  function appendNumber(digit){
+    if (currentOperand === '0' || resetNext){
+      currentOperand = digit;
+      resetNext = false;
+    } else {
+      currentOperand += digit;
+    }
+  }
+
+  /* ---------- Append a decimal point ---------- */
+  function appendDecimal(){
+    if (resetNext){
+      currentOperand = '0.';
+      resetNext = false;
+      return;
+    }
+    // if-else used here to avoid adding a second "."
+    if (!currentOperand.includes('.')){
+      currentOperand += '.';
+    }
+  }
+
+  /* ---------- Choose an operator ---------- */
+  function chooseOperator(op){
+    if (currentOperand === '' ) return;
+
+    if (previousOperand !== ''){
+      // an operator was already chosen once before -> calculate first
+      compute();
+    }
+
+    operator = op;
+    previousOperand = currentOperand;
+    resetNext = true;
+  }
+
+  /* ---------- Perform the calculation ---------- */
+  function compute(){
+    const prev = parseFloat(previousOperand);
+    const curr = parseFloat(currentOperand);
+
+    if (isNaN(prev) || isNaN(curr)) return;
+
+    let result = 0;
+
+    // if-else chain covering every supported operator
+    if (operator === '+'){
+      result = prev + curr;
+    } else if (operator === '-'){
+      result = prev - curr;
+    } else if (operator === '×'){
+      result = prev * curr;
+    } else if (operator === '÷'){
+      result = curr === 0 ? 'Error' : prev / curr;
+    } else if (operator === '%'){
+      result = prev % curr;
+    } else {
+      return;
+    }
+
+    // round off small floating point errors, unless it's an error string
+    currentOperand = (result === 'Error') ? 'Error' : roundResult(result);
+    operator = null;
+    previousOperand = '';
+    resetNext = true;
+  }
+
+  /* ---------- Round long decimals down to 8 places ---------- */
+  function roundResult(number){
+    let rounded = Math.round(number * 1e8) / 1e8;
+    return rounded.toString();
+  }
+
+  /* ---------- Clear everything ---------- */
+  function clearAll(){
+    currentOperand  = '0';
+    previousOperand = '';
+    operator        = null;
+    resetNext       = false;
+  }
+
+  /* ---------- Delete last character ---------- */
+  function deleteLast(){
+    if (currentOperand.length === 1 || currentOperand === 'Error'){
+      currentOperand = '0';
+    } else {
+      currentOperand = currentOperand.slice(0, -1);
+    }
+  }
+
+  /* ---------- Wire up every button with one loop ---------- */
+  for (const button of allButtons){
+    button.addEventListener('click', () => {
+      const action = button.dataset.action;
+      const value  = button.dataset.value;
+
+      if (action === 'number'){
+        appendNumber(value);
+      } else if (action === 'decimal'){
+        appendDecimal();
+      } else if (action === 'operator'){
+        chooseOperator(value);
+      } else if (action === 'equals'){
+        compute();
+      } else if (action === 'clear'){
+        clearAll();
+      } else if (action === 'delete'){
+        deleteLast();
+      }
+
+      updateDisplay();
+    });
+  }
+
+  /* ---------- Keyboard support ---------- */
+  window.addEventListener('keydown', (e) => {
+    if (e.key >= '0' && e.key <= '9') appendNumber(e.key);
+    else if (e.key === '.') appendDecimal();
+    else if (e.key === '+' ) chooseOperator('+');
+    else if (e.key === '-' ) chooseOperator('-');
+    else if (e.key === '*' ) chooseOperator('×');
+    else if (e.key === '/' ) chooseOperator('÷');
+    else if (e.key === '%' ) chooseOperator('%');
+    else if (e.key === 'Enter' || e.key === '=') compute();
+    else if (e.key === 'Backspace') deleteLast();
+    else if (e.key === 'Escape') clearAll();
+    else return;
+
+    updateDisplay();
+  });
+
+  updateDisplay();
+
+</script>
+
+</body>
+</html>
